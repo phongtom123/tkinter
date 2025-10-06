@@ -1,5 +1,6 @@
 ﻿import tkinter as tk
 from tkinter import messagebox
+from PIL import Image, ImageTk   # dùng Pillow để load ảnh JPG/PNG
 
 root = tk.Tk()
 root.title("Sidebar 2 bên + Header Demo")
@@ -7,11 +8,25 @@ root.geometry("900x500")
 root.configure(bg="#f0f0f0")
 
 # ===== Header =====
-header = tk.Frame(root, bg="#333", height=50)
+header = tk.Frame(root, bg="#333", height=80)
 header.grid(row=0, column=0, columnspan=3, sticky="nsew")
 
-title_label = tk.Label(header, text="My Application", font=("Arial", 14, "bold"), bg="#333", fg="white")
-title_label.pack(side="left", padx=10)
+title_label = tk.Label(header, text="My Application", font=("Arial", 14, "bold"),
+                       bg="#333", fg="white")
+title_label.pack(side="left", padx=20, pady=20)
+
+# ===== Avatar (phải) =====
+# Load ảnh và resize nhỏ lại cho vừa header
+avatar_img = Image.open("./photos/avataaars.png")
+avatar_img = avatar_img.resize((50, 50))  # chỉnh kích thước avatar
+avatar_photo = ImageTk.PhotoImage(avatar_img)
+
+def avatar_clicked(event):
+    messagebox.showinfo("Avatar", "Bạn vừa click vào avatar!")
+
+avatar_label = tk.Label(header, image=avatar_photo, bg="#333", cursor="hand2")
+avatar_label.pack(side="right", padx=20, pady=10)
+avatar_label.bind("<Button-1>", avatar_clicked)   # click được vào avatar
 
 # ====== Sidebar Trái ======
 sidebar_left = tk.Frame(root, bg="#1db954", width=180, height=500)
@@ -33,10 +48,18 @@ def show_in_main(title, options):
     lbl = tk.Label(main_frame, text=title, font=("Arial", 16, "bold"), bg="white")
     lbl.pack(pady=10)
 
-    for opt in options:
-        btn = tk.Button(main_frame, text=opt, font=("Arial", 14),
-                        command=lambda x=opt: show_message(f"{title} - {x}"))
-        btn.pack(pady=5)
+    # Danh sách màu cho các Unit
+    colors = ["blue", "green", "yellow"]
+
+    for i, opt in enumerate(options):
+        btn = tk.Button(main_frame, text=opt, font=("Arial", 14, "bold"),
+                        command=lambda x=opt: show_message(f"{title} - {x}"),
+                        bg=colors[i % len(colors)],
+                        fg="white" if colors[i] != "yellow" else "black",
+                        width=30, height=2,
+                        relief="raised", bd=4, highlightthickness=0,
+                        activebackground="#666")
+        btn.pack(pady=20)   # cách đều 20px
 
 # ====== Nút chính ======
 btn_home = tk.Button(sidebar_left, text="🏠 Home",
@@ -79,7 +102,7 @@ courses_frame.grid_remove()  # ẩn mặc định
 
 # ====== Các nút khác ======
 btn_streak = tk.Button(sidebar_left, text="⭐ Streak",
-                       command=lambda: show_in_main("Streak", ["Day 1", "Day 2"]),
+                       command=lambda: show_in_main("Streak", ["Day 1"]),
                        font=("Arial", 12), fg="white", bg="#1db954",
                        bd=0, activebackground="#17a74a", anchor="w", padx=20)
 btn_streak.grid(row=3, column=0, sticky="ew", pady=5)
